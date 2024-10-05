@@ -1,9 +1,9 @@
 package ua.edu.ucu.apps.tempseries;
-import java.util.Arrays;
 import java.util.InputMismatchException;
 
 public class TemperatureSeriesAnalysis {
-    private double[] temperatureSeries; 
+    private double[] temperatureSeries;
+    private static final double ABSOLUTE_ZERO = -273.0; 
 
     public TemperatureSeriesAnalysis() {
         this.temperatureSeries = new double[0];
@@ -31,7 +31,7 @@ public class TemperatureSeriesAnalysis {
         double mean = average();
         double dev = 0;
         for (double temp: temperatureSeries) {
-            dev += Math.pow((temp - mean), 2); 
+            dev += (temp - mean) * (temp - mean);
         }
         return Math.sqrt(dev/temperatureSeries.length);
     }
@@ -203,24 +203,29 @@ public class TemperatureSeriesAnalysis {
         double minTemp = min();
         double maxTemp = max();
     
-        return new TempSummaryStatistics(avgTemp, devTemp, minTemp, maxTemp);    
+        return new TempSummaryStatistics(
+            avgTemp, devTemp, minTemp, maxTemp);    
     }
 
     public int addTemps(double... temps) {
         for (double temp: temps) {
-            if (temp < -273) {
-                throw new InputMismatchException("The temperature cannot be < -273°C");
+            if (temp < ABSOLUTE_ZERO) {
+                throw new InputMismatchException(
+                    "The temperature cannot be < -273°C");
             }
         }
         int oldLength = temperatureSeries.length;
         int newLength = oldLength + temps.length;
 
         if (newLength > temperatureSeries.length) {
-            double[] newTempSeries = new double[Math.max(temperatureSeries.length * 2, newLength)];
-            System.arraycopy(temperatureSeries, 0, newTempSeries, 0, temperatureSeries.length);
+            double[] newTempSeries = new double[
+                Math.max(temperatureSeries.length * 2, newLength)];
+            System.arraycopy(temperatureSeries, 0, newTempSeries,
+             0, temperatureSeries.length);
             temperatureSeries = newTempSeries;
         }
-        System.arraycopy(temps, 0, temperatureSeries, oldLength, temps.length);
+        System.arraycopy(temps, 0,
+         temperatureSeries, oldLength, temps.length);
         return newLength;
     }
 }
